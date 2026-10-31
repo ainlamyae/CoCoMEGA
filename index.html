@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoCoMEGA &amp; CoCoMagic — Co-evolutionary metamorphic testing for autonomous systems</title>
+<meta name="description" content="CoCoMEGA and CoCoMagic: cooperative co-evolutionary search for generating metamorphic and differential test cases for autonomous driving systems, evaluated with InterFuser in CARLA.">
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-alt:#ffffff;
+    --ink:#1c1d1f;
+    --ink-soft:#54565b;
+    --ink-faint:#8a8d93;
+    --line:#e0e0dd;
+    --accent:#7a2ff0;
+    --accent-ink:#ffffff;
+    --accent-soft:#f5f0ff;
+    --teal:#0f7a72;
+    --teal-soft:#e8f5f3;
+    --amber:#b5680a;
+    --code-bg:#1c1d1f;
+    --code-ink:#e9e9ea;
+    --shadow: 0 1px 2px rgba(20,20,20,.04), 0 8px 20px rgba(20,20,20,.04);
+    --radius:14px;
+    --maxw:920px;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code, pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  code{font-size:.92em}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* Hero */
+  .hero{
+    padding:88px 0 56px;
+    border-bottom:1px solid var(--line);
+    background:var(--bg);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--teal);margin-bottom:18px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+  h1{
+    font-size:clamp(34px,6vw,52px);
+    line-height:1.05;
+    letter-spacing:-0.02em;
+    margin:0 0 16px;
+  }
+  h1 .plus{color:var(--accent)}
+  h1 .amp{color:var(--ink-faint);font-weight:400}
+  .tagline{
+    font-size:19px;color:var(--ink-soft);max-width:660px;margin:0 0 28px;
+  }
+  .authors{font-size:14.5px;color:var(--ink-faint);margin:0 0 28px}
+  .authors b{color:var(--ink-soft);font-weight:600}
+
+  .badges{display:flex;flex-wrap:wrap;gap:10px}
+  .badge{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 14px;border-radius:999px;
+    background:var(--bg-alt);border:1px solid var(--line);
+    font-size:13.5px;font-weight:600;color:var(--ink);
+    box-shadow:var(--shadow);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .badge:hover{transform:translateY(-1px);border-color:var(--accent);text-decoration:none}
+  .badge svg{width:15px;height:15px;flex:none;stroke:currentColor}
+  .badge svg.fill{stroke:none;fill:currentColor}
+  .badge.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+
+  /* Sections */
+  section{padding:56px 0}
+  section + section{border-top:1px solid var(--line)}
+  .kicker{
+    font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 10px;
+  }
+  h2{font-size:26px;letter-spacing:-.01em;margin:0 0 18px}
+  h2 .venue{display:block;font-size:14px;font-weight:500;color:var(--ink-faint);letter-spacing:0;margin-top:6px}
+  p{color:var(--ink-soft);margin:0 0 14px}
+  .lede{font-size:17px}
+
+  .abstract{
+    background:var(--bg-alt);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 28px;box-shadow:var(--shadow);
+  }
+  .abstract p{color:var(--ink);margin:0 0 12px}
+  .abstract p:last-of-type{margin-bottom:0}
+  .keywords{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--ink-faint)}
+  .keywords b{color:var(--ink-soft)}
+
+  /* Figures */
+  figure{margin:26px 0 0}
+  figure .frame{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;box-shadow:var(--shadow);
+  }
+  figure img{display:block;width:100%;height:auto;margin:0 auto}
+  figure img.tall{max-width:620px}
+  figcaption{font-size:13.5px;color:var(--ink-faint);margin-top:12px}
+  figcaption b{color:var(--ink-soft)}
+
+  /* Stat grid */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;margin-top:8px;
+  }
+  .stat{
+    background:var(--bg-alt);border:1px solid var(--line);border-radius:12px;
+    padding:18px 16px;box-shadow:var(--shadow);
+  }
+  .stat .num{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+  .stat .lbl{font-size:13px;color:var(--ink-faint);margin-top:4px}
+
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}
+  .fact{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--bg-alt)}
+  .fact h3{margin:0 0 6px;font-size:14.5px;color:var(--ink)}
+  .fact p{margin:0;font-size:14px;color:var(--ink-faint)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .chip{
+    font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px;
+    background:var(--accent-soft);color:var(--accent);border:1px solid transparent;
+  }
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--ink-faint);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em}
+  td{color:var(--ink-soft)}
+  td code{color:var(--ink);font-weight:600;white-space:nowrap}
+  td.date{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-faint)}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .status{
+    display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;
+  }
+  .status.merged{background:var(--teal-soft);color:var(--teal)}
+  .status.ahead{background:var(--accent-soft);color:var(--accent)}
+  .status.default{background:var(--ink);color:#fff}
+
+  /* Folder tree */
+  .tree{
+    background:var(--code-bg);color:var(--code-ink);
+    padding:20px;border-radius:10px;font-size:13px;line-height:1.75;overflow-x:auto;margin:0;
+  }
+  .tree .dir{color:#c9a8ff;font-weight:700}
+  .tree .cm{color:#8a8d93}
+
+  .note{
+    font-size:13.5px;color:var(--ink-faint);border-left:3px solid var(--line);
+    padding:4px 0 4px 14px;margin-top:16px;
+  }
+
+  /* Citation */
+  .cite-block{
+    background:var(--bg-alt);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;box-shadow:var(--shadow);
+  }
+  .cite-block + .cite-block{margin-top:18px}
+  .cite-text{font-size:14.5px;color:var(--ink-soft);margin:0 0 16px}
+  .cite-text b{color:var(--ink)}
+  .code-wrap{position:relative}
+  pre{
+    background:var(--code-bg);color:var(--code-ink);
+    padding:20px 20px 20px;border-radius:10px;
+    font-size:13px;line-height:1.65;overflow-x:auto;margin:0;
+  }
+  .copy-btn{
+    position:absolute;top:10px;right:10px;
+    background:rgba(255,255,255,.08);color:var(--code-ink);
+    border:1px solid rgba(255,255,255,.18);border-radius:7px;
+    padding:6px 11px;font-size:12.5px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .copy-btn:hover{background:rgba(255,255,255,.16)}
+  .copy-btn svg{width:13px;height:13px}
+
+  /* Footer */
+  footer{padding:40px 0 60px;border-top:1px solid var(--line)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:18px;font-size:14px}
+  footer p{font-size:13px;color:var(--ink-faint);margin:0}
+
+  ::selection{background:var(--accent);color:var(--accent-ink)}
+
+  @media (max-width:640px){
+    .wrap{padding:0 16px}
+    .hero{padding:56px 0 40px}
+    section{padding:40px 0}
+    .abstract{padding:20px}
+    figure .frame{padding:10px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>Research code · Search-based testing</div>
+    <h1>CoCo<span class="plus">MEGA</span> <span class="amp">&amp;</span> CoCo<span class="plus">Magic</span></h1>
+    <p class="tagline">Cooperative co-evolutionary search that generates metamorphic — and differential — test cases for autonomous driving systems, evaluated on the InterFuser ADS in the CARLA simulator.</p>
+    <p class="authors"><b>Hossein Yousefizadeh</b> · <b>Shenghui Gu</b> · <b>Lionel C. Briand</b> · <b>Ali Nasr</b></p>
+    <div class="badges">
+      <a class="badge primary" href="https://doi.org/10.1109/TSE.2025.3570897" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v7H3V3h7"/></svg>
+        CoCoMEGA · IEEE TSE 2025
+      </a>
+      <a class="badge primary" href="https://doi.org/10.1145/3821438" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v7H3V3h7"/></svg>
+        CoCoMagic · ACM TOSEM 2026
+      </a>
+      <a class="badge" href="https://arxiv.org/abs/2412.03843" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        arXiv:2412.03843
+      </a>
+      <a class="badge" href="https://arxiv.org/abs/2509.16478" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        arXiv:2509.16478
+      </a>
+      <a class="badge" href="https://github.com/ainlamyae/CoCoMEGA" target="_blank" rel="noopener">
+        <svg class="fill" viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.56-.29-5.25-1.28-5.25-5.71 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.44-2.7 5.42-5.27 5.7.42.36.78 1.07.78 2.17v3.21c0 .3.21.66.79.55A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+        GitHub repository
+      </a>
+      <span class="badge" title="GNU General Public License v3.0">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        GPL-3.0
+      </span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="overview">
+    <div class="wrap">
+      <div class="kicker">At a glance</div>
+      <h2>Two methods, one framework</h2>
+      <p class="lede"><b>CoCoMEGA</b> combines Cooperative Co-Evolutionary Algorithms (CCEAs) with Metamorphic Testing (MT) to find test scenarios that violate Metamorphic Relations (MRs). <b>CoCoMagic</b> extends it with Differential Testing (DT), constraints, and an interpretability step, to expose behavioural differences between two versions of the same system.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="num">2</div><div class="lbl">co-evolving populations (scenarios × perturbations)</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">output relations: invariance, increasing, decreasing</div></div>
+        <div class="stat"><div class="num">287%</div><div class="lbl">more distinct high-severity differences (CoCoMagic, upper bound)</div></div>
+        <div class="stat"><div class="num">24</div><div class="lbl">branches of development history</div></div>
+      </div>
+
+      <div class="facts">
+        <div class="fact">
+          <h3>Co-evolutionary search</h3>
+          <p>Scenarios and metamorphic perturbations evolve in separate populations and collaborate to form complete test cases.</p>
+        </div>
+        <div class="fact">
+          <h3>Differential testing</h3>
+          <p>CoCoMagic runs each test case on an original and an updated system and maximises the difference in MR violations.</p>
+        </div>
+        <div class="fact">
+          <h3>Interpretability</h3>
+          <p>RuleFit extracts human-readable rules from the final test cases to help diagnose why versions diverge.</p>
+        </div>
+        <div class="fact">
+          <h3>Extensible domains</h3>
+          <p>A CARLA + InterFuser implementation, a sorting example, and a domain template for plugging in other systems.</p>
+        </div>
+      </div>
+
+      <div class="chips">
+        <span class="chip">Metamorphic testing</span>
+        <span class="chip">Differential testing</span>
+        <span class="chip">CCEA</span>
+        <span class="chip">CARLA</span>
+        <span class="chip">InterFuser</span>
+        <span class="chip">Scenic</span>
+        <span class="chip">RuleFit</span>
+        <span class="chip">GA &amp; random-search baselines</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="cocomega">
+    <div class="wrap">
+      <div class="kicker">Paper 1 · Abstract</div>
+      <h2>CoCoMEGA: Using Cooperative Co-Evolutionary Search to Generate Metamorphic Test Cases for Autonomous Driving Systems<span class="venue">IEEE Transactions on Software Engineering, vol. 51, no. 6, pp. 1882–1911, June 2025</span></h2>
+      <div class="abstract">
+        <p>Autonomous Driving Systems (ADSs) rely on Deep Neural Networks, allowing vehicles to navigate complex, open environments. However, the unpredictability of these scenarios highlights the need for rigorous system-level testing to ensure safety, a task usually performed with a simulator in the loop. Though one important goal of such testing is to detect safety violations, there are many undesirable system behaviors, that may not immediately lead to violations, that testing should also be focusing on, thus detecting more subtle problems and enabling a finer-grained analysis.</p>
+        <p>This paper introduces <b>Co</b>operative <b>Co</b>-evolutionary <b>ME</b>tamorphic test <b>G</b>enerator for <b>A</b>utonomous systems (CoCoMEGA), a novel automated testing framework aimed at advancing system-level safety assessments of ADSs. CoCoMEGA combines Metamorphic Testing (MT) with a search-based approach utilizing Cooperative Co-Evolutionary Algorithms (CCEA) to efficiently generate a diverse set of test cases. CoCoMEGA emphasizes the identification of test scenarios that present undesirable system behavior, that may eventually lead to safety violations, captured by Metamorphic Relations (MRs).</p>
+        <p>When evaluated within the CARLA simulation environment on the Interfuser ADS, CoCoMEGA consistently outperforms baseline methods, demonstrating enhanced effectiveness and efficiency in generating severe, diverse MR violations and achieving broader exploration of the test space. These results underscore CoCoMEGA as a promising, more scalable solution to the inherent challenges in ADS testing with a simulator in the loop.</p>
+        <div class="keywords"><b>Index terms —</b> Autonomous driving systems · System-level testing · Metamorphic testing · Search-based testing · Cooperative co-evolutionary algorithms · Automated testing</div>
+      </div>
+
+      <figure>
+        <div class="frame"><img class="tall" src="assets/cocomega-overview.png" alt="CoCoMEGA flowchart: initialization of scenario and perturbation populations and archives; collaboration into complete solutions; fitness assessment by simulating source and follow-up scenarios and measuring the extent of MR violation; fitness clearing; archive update; and breeding via selection, crossover and mutation, looping until termination." width="854" height="900" loading="lazy"></div>
+        <figcaption><b>Overview of CoCoMEGA</b> (Fig. 2 in the paper). Each generation pairs individuals from the scenario and perturbation populations into complete solutions, simulates the source and follow-up scenarios, scores the extent of MR violation, applies fitness clearing for diversity, updates the archives, and breeds the next generation.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="cocomagic">
+    <div class="wrap">
+      <div class="kicker">Paper 2 · Abstract</div>
+      <h2>CoCoMagic: Constrained Co-evolutionary Differential Metamorphic Testing for Autonomous Systems with an Interpretability Approach<span class="venue">ACM Transactions on Software Engineering and Methodology, June 2026</span></h2>
+      <div class="abstract">
+        <p>Autonomous systems, such as autonomous driving systems, evolve rapidly through frequent updates, risking unintended behavioral degradations. Effective system-level testing is challenging due to the vast scenario space, the absence of reliable test oracles, and the need for practically applicable and interpretable test cases.</p>
+        <p>We present CoCoMagic, a novel automated test case generation method that combines metamorphic testing, differential testing, and advanced search-based techniques to identify behavioral divergences between versions of autonomous systems. CoCoMagic formulates test generation as a constrained cooperative co-evolutionary search, evolving both source scenarios and metamorphic perturbations to maximize differences in violations of predefined metamorphic relations across versions. Constraints and population initialization strategies guide the search toward realistic, relevant scenarios. An integrated interpretability approach aids in diagnosing the root causes of divergences.</p>
+        <p>We evaluate CoCoMagic on an end-to-end ADS, InterFuser, within the Carla virtual simulator. Results show significant improvements over baseline search methods, identifying up to <b>287% more distinct high-severity behavioral differences</b> while maintaining scenario realism. The interpretability approach provides actionable insights for developers, supporting targeted debugging and safety assessment.</p>
+        <div class="keywords"><b>Index terms —</b> Autonomous systems · Autonomous driving systems · System-level testing · Metamorphic testing · Differential testing · Search-based testing · Cooperative co-evolutionary algorithms</div>
+      </div>
+
+      <figure>
+        <div class="frame"><img src="assets/cocomagic-overview.png" alt="CoCoMagic flowchart: execution scenarios seed the scenario population; scenario and perturbation populations and archives form complete solutions; each is simulated on the original and updated system, the extents of violation are compared, constraints penalize fitness; offspring and archives are updated until a stop condition; final test cases go to RuleFit, producing interpretable rules for an analyst." width="1069" height="604" loading="lazy"></div>
+        <figcaption><b>Overview of CoCoMagic</b> (Fig. 1 in the paper). Complete solutions are simulated on both the original and the updated system; fitness is the difference in MR violation extent, penalised by realism constraints. After the search stops, RuleFit turns the final test cases into interpretable rules for root-cause analysis.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="structure">
+    <div class="wrap">
+      <div class="kicker">Repository</div>
+      <h2>Folder structure</h2>
+      <p class="lede">The <code>main</code> branch holds the modular framework: domain-independent search code in <code>impl/core</code>, with the autonomous-driving domain and a small sorting example built on top of it.</p>
+<pre class="tree"><span class="dir">conf/</span>                   <span class="cm"># General configuration and logging defaults</span>
+<span class="dir">docs/</span>                   <span class="cm"># Sphinx documentation (installation, usage, architecture)</span>
+<span class="dir">impl/</span>
+├── __main__.py         <span class="cm"># Command-line entry point</span>
+├── <span class="dir">core/</span>               <span class="cm"># Search algorithms (CCEA, GA, random) and shared abstractions</span>
+├── <span class="dir">ads/</span>                <span class="cm"># CARLA and InterFuser integration</span>
+├── <span class="dir">sorting/</span>            <span class="cm"># Sorting domain example</span>
+└── <span class="dir">domain_template/</span>    <span class="cm"># Template for adding a new domain</span>
+<span class="dir">test/</span>                   <span class="cm"># Test modules</span>
+<span class="dir">extra/</span>
+├── <span class="dir">illustrative_example/</span>   <span class="cm"># Example scenario screenshots</span>
+└── <span class="dir">questionnaire_analysis/</span> <span class="cm"># Notebooks for the interpretability questionnaire</span>
+<span class="dir">questionnaire/</span>          <span class="cm"># Web questionnaire used in the user study (index.html, rules.js)</span>
+<span class="dir">scripts/</span>                <span class="cm"># Re-evaluation / false-positive analysis script</span>
+Dockerfile              <span class="cm"># Container image for running experiments</span>
+requirements.txt        <span class="cm"># Python dependencies</span></pre>
+      <p class="note">To build the documentation: <code>pip install sphinx sphinx-rtd-theme</code>, then <code>cd docs &amp;&amp; make html</code> (requires Graphviz <code>dot</code> on <code>PATH</code>), and open <code>docs/_build/html/index.html</code>.</p>
+    </div>
+  </section>
+
+  <section id="branches">
+    <div class="wrap">
+      <div class="kicker">Development history</div>
+      <h2>Branches</h2>
+      <p class="lede">Feature branches trace how the framework grew, from the first CoCoMEGA search loop in 2024 to differential testing, runtime data collection, interpretability, and the modular redesign. All except the <code>CoCoMEGA-v1.1</code> release line are fully merged into <code>main</code>.</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Branch</th><th>Last update</th><th>Status</th><th>What it contains</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>main</code></td><td class="date">2026-09-29</td><td><span class="status default">default</span></td><td>Current framework with CoCoMEGA and CoCoMagic, modular domains, documentation, and replication material.</td></tr>
+            <tr><td><code>scenic</code></td><td class="date">2025-10-14</td><td><span class="status merged">merged</span></td><td>Scenic simulation support with CARLA town maps; fixed trajectory length and better junction handling.</td></tr>
+            <tr><td><code>interpretation</code></td><td class="date">2025-08-13</td><td><span class="status merged">merged</span></td><td>Interpretability / root-cause analysis with RuleFit and the RQ4 explanation notebook.</td></tr>
+            <tr><td><code>modularization</code></td><td class="date">2025-06-10</td><td><span class="status merged">merged</span></td><td>Refactor into a modular domain design; adds the domain template and the sorting example domain.</td></tr>
+            <tr><td><code>CoCoMEGA-v1.1</code></td><td class="date">2025-05-05</td><td><span class="status ahead">5 ahead</span></td><td>CoCoMEGA release line: docstrings, variable comments, MOSA removed, updated README and results.</td></tr>
+            <tr><td><code>random_trajectory</code></td><td class="date">2025-04-15</td><td><span class="status merged">merged</span></td><td>Random trajectory generation for scenarios and runtime-to-scenario conversion.</td></tr>
+            <tr><td><code>config-optimization</code></td><td class="date">2025-04-14</td><td><span class="status merged">merged</span></td><td>Simplified differential fitness, refined violation extent, and configuration serialization fixes.</td></tr>
+            <tr><td><code>runtime_collect</code></td><td class="date">2025-04-07</td><td><span class="status merged">merged</span></td><td>Runtime data collection with route limits, checkpoints, and configurable collection intervals.</td></tr>
+            <tr><td><code>update_runtime_collection</code></td><td class="date">2025-03-20</td><td><span class="status merged">merged</span></td><td>Mid-route runtime collection, simulation video recording, and effectiveness / efficiency comparisons.</td></tr>
+            <tr><td><code>train_fix</code></td><td class="date">2025-01-19</td><td><span class="status merged">merged</span></td><td>Configurable route types for data collection, parallel execution, and weather configuration.</td></tr>
+            <tr><td><code>runtime</code></td><td class="date">2024-12-16</td><td><span class="status merged">merged</span></td><td>First runtime data collector for simulations.</td></tr>
+            <tr><td><code>differential-testing-evaluation</code></td><td class="date">2024-12-05</td><td><span class="status merged">merged</span></td><td>Base differential-testing logic (groundwork for CoCoMagic) and the APD metric.</td></tr>
+            <tr><td><code>invalid_handling</code></td><td class="date">2024-06-24</td><td><span class="status merged">merged</span></td><td>Actor marking in perturbations, a trajectory heuristic, and handling of invalid solutions.</td></tr>
+            <tr><td><code>enable-autopilot</code></td><td class="date">2024-06-05</td><td><span class="status merged">merged</span></td><td>Autopilot for surrounding vehicles through the CARLA Traffic Manager.</td></tr>
+            <tr><td><code>collision_detection</code></td><td class="date">2024-06-02</td><td><span class="status merged">merged</span></td><td>Collision criterion and additional leaderboard scenarios.</td></tr>
+            <tr><td><code>leaderboard_factory</code></td><td class="date">2024-05-27</td><td><span class="status merged">merged</span></td><td>LeaderBoardFactory scenario generation; trajectories as a start point plus turn direction.</td></tr>
+            <tr><td><code>adjust_z</code></td><td class="date">2024-05-26</td><td><span class="status merged">merged</span></td><td>Static-object height from CARLA waypoints; adding and deleting actors during mutation.</td></tr>
+            <tr><td><code>pert_boundary</code></td><td class="date">2024-05-26</td><td><span class="status merged">merged</span></td><td>Perturbation boundary test with checkpoint-based resume.</td></tr>
+            <tr><td><code>closest_within_pov</code></td><td class="date">2024-05-21</td><td><span class="status merged">merged</span></td><td>Field-of-view distance to the nearest vehicle visible to the ego vehicle.</td></tr>
+            <tr><td><code>refactoring</code></td><td class="date">2024-05-07</td><td><span class="status merged">merged</span></td><td>Refactored CARLA setup, weather reset, and game-time handling; route indexer removed.</td></tr>
+            <tr><td><code>identical_violation</code></td><td class="date">2024-04-28</td><td><span class="status merged">merged</span></td><td>Identical-violation test across repeated experiments.</td></tr>
+            <tr><td><code>trajectory_collision_score</code></td><td class="date">2024-04-18</td><td><span class="status merged">merged</span></td><td>Trajectory collision score and an initialization selection factor.</td></tr>
+            <tr><td><code>visualization</code></td><td class="date">2024-04-17</td><td><span class="status merged">merged</span></td><td>Statistics visualization and velocity in scenario results.</td></tr>
+            <tr><td><code>handle_invalid_solutions</code></td><td class="date">2024-04-15</td><td><span class="status merged">merged</span></td><td>Early exception management and evaluated-scenario handling in the simulation runner.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">“Ahead” counts commits on the branch that are not in <code>main</code>. Switch with <code>git checkout &lt;branch&gt;</code>.</p>
+    </div>
+  </section>
+
+  <section id="cite">
+    <div class="wrap">
+      <div class="kicker">Citation</div>
+      <h2>Cite the papers</h2>
+      <div class="cite-block">
+        <p class="cite-text">If you use <b>CoCoMEGA</b>, please cite:</p>
+        <div class="code-wrap">
+          <button class="copy-btn" type="button" data-target="bib1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+          <pre id="bib1">@article{yousefizadeh2025using,
+  author    = {Hossein Yousefizadeh and Shenghui Gu and Lionel C. Briand and Ali Nasr},
+  title     = {Using Cooperative Co-Evolutionary Search to Generate Metamorphic Test Cases for Autonomous Driving Systems},
+  journal   = {{IEEE} Transactions on Software Engineering},
+  year      = 2025,
+  month     = jun,
+  volume    = {51},
+  number    = {6},
+  pages     = {1882--1911},
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  doi       = {10.1109/tse.2025.3570897},
+  url       = {http://doi.org/10.1109/TSE.2025.3570897}
+}</pre>
+        </div>
+      </div>
+      <div class="cite-block">
+        <p class="cite-text">If you use <b>CoCoMagic</b>, please cite:</p>
+        <div class="code-wrap">
+          <button class="copy-btn" type="button" data-target="bib2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+          <pre id="bib2">@article{yousefizadeh2026constrained,
+  author    = {Hossein Yousefizadeh and Shenghui Gu and Lionel C. Briand and Ali Nasr},
+  title     = {Constrained Co-evolutionary Differential Metamorphic Testing for Autonomous Systems with an Interpretability Approach},
+  journal   = {{ACM} Transactions on Software Engineering and Methodology},
+  year      = 2026,
+  month     = jun,
+  publisher = {Association for Computing Machinery ({ACM})},
+  doi       = {10.1145/3821438},
+  url       = {https://doi.org/10.1145/3821438}
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="https://doi.org/10.1109/TSE.2025.3570897" target="_blank" rel="noopener">CoCoMEGA (DOI)</a>
+      <a href="https://doi.org/10.1145/3821438" target="_blank" rel="noopener">CoCoMagic (DOI)</a>
+      <a href="https://arxiv.org/abs/2412.03843" target="_blank" rel="noopener">CoCoMEGA on arXiv</a>
+      <a href="https://arxiv.org/abs/2509.16478" target="_blank" rel="noopener">CoCoMagic on arXiv</a>
+      <a href="https://github.com/ainlamyae/CoCoMEGA" target="_blank" rel="noopener">GitHub repository</a>
+    </div>
+    <p>Hossein Yousefizadeh, Shenghui Gu, Lionel C. Briand, Ali Nasr. Figures and abstracts are reproduced from the papers above. Code released under the GNU General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.target).textContent;
+      var label = btn.querySelector('span');
+      navigator.clipboard.writeText(text).then(function () {
+        label.textContent = 'Copied';
+        setTimeout(function () { label.textContent = 'Copy'; }, 1600);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
